@@ -1,0 +1,65 @@
+# See detailed comments in the production docker-compose
+# This configuration should work fine for local development, restart the API container once the DB is online in order to create the admin user automatically.
+services:
+  api:
+    build:
+      context: ../../API
+      dockerfile: ./Dockerfile.dev
+    container_name: 'updater-api-dev'
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - ../../API:/server
+      - ./updates:/updates
+      - ./uploads:/uploads
+      - yarn_cache_updater_api:/yarn
+      - node_modules_updater_api:/server/node_modules
+
+    environment:
+      - SERVICE_FQDN_API_3000
+      - SERVICE_FQDN_API_9229
+      - TZ=${TZ:-Europe/Rome}
+      - FEATHERS_AUTH_SECRET=${FEATHERS_AUTH_SECRET:-EnterHereYourCustomSecret}
+      - MONGO_CONN=${MONGO_CONN:-mongodb://db:27017/updater}
+      - ADMIN_PASSWORD=${SERVICE_PASSWORD_API}
+      - UPLOAD_KEY=${SERVICE_PASSWORD_API_KEY}
+      - NODE_ENV=${ENVIRONMENT:-development}
+      - PUBLIC_URL=${SERVICE_FQDN_API_3000}
+      - DASBHOARD_THROTTLE_MSEC=${DASBHOARD_THROTTLE_MSEC:-5000}
+    command: npx nodemon --inspect=0.0.0.0 src/index.js
+
+  web:
+    build:
+      context: ../../Web
+      dockerfile: Dockerfile.dev
+    container_name: updater-web-dev
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - ../../Web:/app
+      - yarn_cache_updater_web:/yarn
+      - node_modules_updater_web:/app/node_modules
+    ports:
+      - 4000:4000
+    environment:
+      - SERVICE_FQDN_WEB_4000
+      - API_BASE_URL=${SERVICE_FQDN_API_3000}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+
+  db:
+    container_name: updater-db-dev
+    image: mongo:4.2.2
+    platform: linux/amd64
+    restart: always
+    volumes:
+      - updater_db_data:/data/db
+    command: mongod --bind_ip=0.0.0.0 --logpath=/dev/null
+
+volumes:
+  yarn_cache_updater_api:
+  yarn_cache_updater_web:
+  node_modules_updater_api:
+  node_modules_updater_web:
+  updater_db_data:
