@@ -7,6 +7,12 @@ RUN apk add --no-cache bash
 ENV YARN_CACHE_FOLDER /yarn
 RUN mkdir -p $YARN_CACHE_FOLDER
 
+# Set working directory
+WORKDIR /app
+
+# Copy app code into container
+COPY . .
+
 # Docker Entry Point
 COPY ./deploy/startup-dev.sh /
 RUN chmod +x /startup-dev.sh

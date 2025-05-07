@@ -1,13 +1,22 @@
 FROM node:22-alpine
+
+# Install timezone data
 RUN apk update && apk add --no-cache tzdata
 
 # Yarn Cache
 ENV YARN_CACHE_FOLDER /yarn
 RUN mkdir -p $YARN_CACHE_FOLDER && chown -R node:node $YARN_CACHE_FOLDER
 
+# Set working directory
+WORKDIR /server
+
+# Copy app code (excluding files in .dockerignore)
+COPY . .
+
 # Docker Entry Point
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
+# Create logs dir (optional)
 RUN mkdir -p /logs

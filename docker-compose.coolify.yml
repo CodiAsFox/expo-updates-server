@@ -3,19 +3,18 @@
 services:
   api:
     build:
-      context: ../../API
+      context: ./API
       dockerfile: Dockerfile.dev
     container_name: 'updater-api-dev'
     restart: always
     depends_on:
       - db
     volumes:
-      - ../../API:/server
+      - ./API:/server
       - ./updates:/updates
       - ./uploads:/uploads
       - yarn_cache_updater_api:/yarn
       - node_modules_updater_api:/server/node_modules
-
     environment:
       - SERVICE_FQDN_API_3000
       - SERVICE_FQDN_API_9229
@@ -31,14 +30,14 @@ services:
 
   web:
     build:
-      context: ../../Web
+      context: ./Web
       dockerfile: Dockerfile.dev
     container_name: updater-web-dev
     restart: always
     depends_on:
       - db
     volumes:
-      - ../../Web:/app
+      - ./Web:/app
       - yarn_cache_updater_web:/yarn
       - node_modules_updater_web:/app/node_modules
     ports:
