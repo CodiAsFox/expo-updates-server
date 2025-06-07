@@ -15,6 +15,9 @@ services:
       - ./uploads:/uploads
       - yarn_cache_updater_api:/yarn
       - node_modules_updater_api:/server/node_modules
+    ports:
+      - 3000:3000
+      - 9229:9229
     environment:
       - SERVICE_FQDN_API_3000
       - SERVICE_FQDN_API_9229
@@ -24,7 +27,7 @@ services:
       - ADMIN_PASSWORD=${SERVICE_PASSWORD_API}
       - UPLOAD_KEY=${SERVICE_PASSWORD_UPLOADKEY}
       - NODE_ENV=${ENVIRONMENT:-development}
-      - PUBLIC_URL=${SERVICE_FQDN_API_3000}
+      - PUBLIC_URL=${PUBLIC_URL}
       - DASBHOARD_THROTTLE_MSEC=${DASBHOARD_THROTTLE_MSEC:-5000}
     command: npx nodemon --inspect=0.0.0.0 src/index.js
 
@@ -44,7 +47,7 @@ services:
       - 4000:4000
     environment:
       - SERVICE_FQDN_WEB_4000
-      - API_BASE_URL=${SERVICE_FQDN_API_3000}
+      - API_BASE_URL=${PUBLIC_URL}
       - ENVIRONMENT=${ENVIRONMENT:-development}
 
   db:
